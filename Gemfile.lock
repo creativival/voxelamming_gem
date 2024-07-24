@@ -1,0 +1,22 @@
+PATH
+  remote: .
+  specs:
+    voxelamming_gem (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.16.3)
+    rake (13.0.6)
+
+PLATFORMS
+  arm64-darwin-23
+  ruby
+
+DEPENDENCIES
+  minitest (~> 5.16)
+  rake (~> 13.0)
+  voxelamming_gem!
+
+BUNDLED WITH
+   2.5.16
