@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    voxelamming_gem (0.1.0)
+    voxelamming_gem (0.1.1)
       faye-websocket (~> 0.11.3)
 
 GEM

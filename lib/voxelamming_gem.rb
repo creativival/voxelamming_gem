@@ -440,7 +440,7 @@ module VoxelammingGem
   # Make model
   def self.get_boxes_from_ply(ply_file)
     box_positions = Set.new
-    File.open("./ply_file/#{ply_file}", 'r') do |f|
+    File.open(ply_file, 'r') do |f|
       lines = f.read
       lines = lines.gsub("\r\n", "\n")
       lines = lines.strip
@@ -497,7 +497,7 @@ module VoxelammingGem
     # csvファイルから地図データを読み込み
     heights = []
 
-    CSV.foreach("./map_file/#{csv_file}") do |row|
+    CSV.foreach(csv_file) do |row|
       for h in row
         h = h.to_f
         h = h != 0 ? (h * height_scale).floor : -1
