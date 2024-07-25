@@ -491,9 +491,7 @@ module VoxelammingGem
   end
 
   # Map
-  $column_num, $row_num = 257, 257
-
-  def self.get_map_data_from_csv(csv_file, height_scale)
+  def self.get_map_data_from_csv(csv_file, height_scale, column_num = 257, row_num = 257)
     # csvファイルから地図データを読み込み
     heights = []
 
@@ -507,7 +505,7 @@ module VoxelammingGem
     #   puts "heights: #{heights}"
 
     max_height = heights.max.floor
-    box_positions = (0...$row_num).map { |i| heights[i * $column_num, $column_num] }
+    box_positions = (0...row_num).map { |i| heights[i * column_num, column_num] }
     puts "max_height: #{max_height}"
     #   puts "box_positions: #{box_positions}"
     { 'boxes' => box_positions, 'max_height' => max_height }
