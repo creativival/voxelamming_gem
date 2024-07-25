@@ -6,14 +6,17 @@ require 'faye/websocket'
 require 'eventmachine'
 require 'date'
 require_relative 'matrix_util'
+require 'csv'
 
 module VoxelammingGem
   class Error < StandardError; end
 
+  # test
   def self.greet(name)
     puts "Hello, #{name}! I'm Ruby!"
   end
 
+  # Main process
   class BuildBox
     @@texture_names = ["grass", "stone", "dirt", "planks", "bricks"]
 
@@ -345,5 +348,177 @@ module VoxelammingGem
     def round_colors(num_list)
       num_list.map { |val| val.round(2) }
     end
+  end
+
+  # Turtle graphics
+  class Turtle
+    include Math
+
+    def initialize(build_box)
+      @build_box = build_box
+      @x = 0
+      @y = 0
+      @z = 0
+      @polar_theta = 90
+      @polar_phi = 0
+      @drawable = true
+      @color = [0, 0, 0, 1]
+      @size = 1
+    end
+
+    def forward(length)
+      z = @z + length * sin(radians(@polar_theta)) * cos(radians(@polar_phi))
+      x = @x + length * sin(radians(@polar_theta)) * sin(radians(@polar_phi))
+      y = @y + length * cos(radians(@polar_theta))
+      x, y, z = x.round(3), y.round(3), z.round(3)
+
+      if @drawable
+        @build_box.draw_line(@x, @y, @z, x, y, z, r: @color[0], g: @color[1], b: @color[2])
+      end
+
+      @x = x
+      @y = y
+      @z = z
+    end
+
+    def backward(length)
+      forward(-length)
+    end
+
+    def up(degree)
+      @polar_theta -= degree
+    end
+
+    def down(degree)
+      @polar_theta += degree
+    end
+
+    def right(degree)
+      @polar_phi -= degree
+    end
+
+    def left(degree)
+      @polar_phi += degree
+    end
+
+    def set_color(r, g, b, alpha = 1)
+      @color = [r, g, b, alpha]
+    end
+
+    def pen_down
+      @drawable = true
+    end
+
+    def pen_up
+      @drawable = false
+    end
+
+    def set_pos(x, y, z)
+      @x = x
+      @y = y
+      @z = z
+    end
+
+    def reset
+      @x = 0
+      @y = 0
+      @z = 0
+      @polar_theta = 90
+      @polar_phi = 0
+      @drawable = true
+      @color = [0, 0, 0, 1]
+      @size = 1
+    end
+
+    private
+
+    def radians(degrees)
+      degrees * Math::PI / 180
+    end
+  end
+
+  # Make model
+  def self.get_boxes_from_ply(ply_file)
+    box_positions = Set.new
+    File.open("./ply_file/#{ply_file}", 'r') do |f|
+      lines = f.read
+      lines = lines.gsub("\r\n", "\n")
+      lines = lines.strip
+      positions = lines.split("\n").select { |ln| self.is_included_six_numbers(ln) }.map { |ln| ln.split.map(&:to_f) }
+
+      number_of_faces = positions.length / 4
+      (0...number_of_faces).each do |i|
+        vertex1 = positions[i * 4]
+        vertex2 = positions[i * 4 + 1]
+        vertex3 = positions[i * 4 + 2]
+        vertex4 = positions[i * 4 + 3] # no need
+        x = [vertex1[0], vertex2[0], vertex3[0]].min
+        y = [vertex1[1], vertex2[1], vertex3[1]].min
+        z = [vertex1[2], vertex2[2], vertex3[2]].min
+        r = vertex1[3] / 255.0
+        g = vertex1[4] / 255.0
+        b = vertex1[5] / 255.0
+        alpha = 1
+
+        # ボックスを置く方向を解析
+        if vertex1[0] == vertex2[0] && vertex2[0] == vertex3[0] # y-z plane
+          step = [vertex1[1], vertex2[1], vertex3[1]].max - y
+          x -= step if vertex1[1] != vertex2[1]
+        elsif vertex1[1] == vertex2[1] && vertex2[1] == vertex3[1] # z-x plane
+          step = [vertex1[2], vertex2[2], vertex3[2]].max - z
+          y -= step if vertex1[2] != vertex2[2]
+        else # x-y plane
+          step = [vertex1[0], vertex2[0], vertex3[0]].max - x
+          z -= step if vertex1[0] != vertex2[0]
+        end
+
+        # minimum unit: 0.1
+        position_x = (x * 10.0 / step).round / 10.0
+        position_y = (y * 10.0 / step).round / 10.0
+        position_z = (z * 10.0 / step).round / 10.0
+        box_positions.add([position_x, position_z, -position_y, r, g, b, alpha])
+      end
+    end
+
+    box_positions
+  end
+
+  def self.is_included_six_numbers(line)
+    line_list = line.split
+    return false if line_list.length != 6
+
+    line_list.all? { |num| Float(num) rescue false }
+  end
+
+  # Map
+  $column_num, $row_num = 257, 257
+
+  def self.get_map_data_from_csv(csv_file, height_scale)
+    # csvファイルから地図データを読み込み
+    heights = []
+
+    CSV.foreach("./map_file/#{csv_file}") do |row|
+      for h in row
+        h = h.to_f
+        h = h != 0 ? (h * height_scale).floor : -1
+        heights << h
+      end
+    end
+    #   puts "heights: #{heights}"
+
+    max_height = heights.max.floor
+    box_positions = (0...$row_num).map { |i| heights[i * $column_num, $column_num] }
+    puts "max_height: #{max_height}"
+    #   puts "box_positions: #{box_positions}"
+    { 'boxes' => box_positions, 'max_height' => max_height }
+  end
+
+  def self.get_box_color(height, max_height, high_color, low_color)
+    # 高さによって色を変える
+    r = (high_color[0] - low_color[0]) * height * 1.0 / max_height + low_color[0]
+    g = (high_color[1] - low_color[1]) * height * 1.0 / max_height + low_color[1]
+    b = (high_color[2] - low_color[2]) * height * 1.0 / max_height + low_color[2]
+
+    [r, g, b]
   end
 end
