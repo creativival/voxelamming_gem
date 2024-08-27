@@ -1,3 +1,5 @@
+# Development of `voxelamming_gem` has been terminated. Please use `voxelamming` as a successor.
+
 # VoxelammingGem
 
 This Ruby package converts Python code into JSON format and sends it to the Voxelamming app using WebSockets, allowing users to create 3D voxel models by writing Ruby scripts.
@@ -17,7 +19,7 @@ Voxelamming is an AR programming learning app. Even programming beginners can le
 ## Installation
 
 ```bash
-gem install voxelamming
+gem install voxelamming_gem
 ```
 
 ## Usage
@@ -84,7 +86,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/voxelamming_gem. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/voxelamming_gem/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/creativival/voxelamming_gem. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/voxelamming_gem/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 

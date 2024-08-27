@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email = ["creativival@gmail.com"]
 
   spec.summary = "This Ruby package converts Ruby code into JSON format and sends it to the Voxelamming app using WebSockets, allowing users to create 3D voxel models by writing Ruby scripts.."
-  spec.description = "Voxelamming is an AR programming learning app. Even programming beginners can learn programming visually and enjoyably. Voxelamming supports iPhones and iPads with iOS 16 or later, and Apple Vision Pro."
+  spec.description = "Development of `voxelamming_gem` has been terminated. Please use `voxelamming` as a successor.\n\nVoxelamming is an AR programming learning app. Even programming beginners can learn programming visually and enjoyably. Voxelamming supports iPhones and iPads with iOS 16 or later, and Apple Vision Pro."
   spec.homepage = "https://creativival.github.io/voxelamming"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
